@@ -39,15 +39,15 @@ export class Edge extends Component<EdgeProps, EdgeState> {
     const { edge } = this.props;
     const eventId = serializeEdge(edge);
 
-    tracker.listen(eventId, data => {
+    tracker.listen(eventId, (data) => {
       this.setState({ eventData: data });
     });
 
-    tracker.listen(edge.source.id, data => {
+    tracker.listen(edge.source.id, (data) => {
       this.setState({ sourceData: data });
     });
 
-    tracker.listen(edge.target.id, data => {
+    tracker.listen(edge.target.id, (data) => {
       let target = edge.target;
       let parentData: TrackerData | undefined = data;
 
@@ -66,6 +66,16 @@ export class Edge extends Component<EdgeProps, EdgeState> {
       this.setState({ targetData: parentData || undefined });
     });
   }
+
+  componentWillUnmount() {
+    const { edge } = this.props;
+    const eventId = serializeEdge(edge);
+
+    tracker.unlisten(eventId);
+    tracker.unlisten(edge.source.id);
+    tracker.unlisten(edge.target.id);
+  }
+
   render() {
     const { edge } = this.props;
     const { sourceData, eventData, targetData } = this.state;
@@ -108,13 +118,13 @@ export class Edge extends Component<EdgeProps, EdgeState> {
         y: eventCenterPt.y
       }));
 
-      ptFns.push(prevPt => ({
+      ptFns.push((prevPt) => ({
         x: sourceRect.right,
         y: prevPt.y
       }));
       if (!isSelf) {
         ptFns.push(
-          prevPt => ({
+          (prevPt) => ({
             x: targetRect.right,
             y: prevPt.y,
             color: 'green'
@@ -123,13 +133,13 @@ export class Edge extends Component<EdgeProps, EdgeState> {
             x: targetRect.right - magic,
             y: targetRect.top - magic
           }),
-          prevPt => ({
+          (prevPt) => ({
             x: prevPt.x,
             y: targetRect.top
           })
         );
       } else {
-        ptFns.push(prevPt => {
+        ptFns.push((prevPt) => {
           if (prevPt.y > sourceRect.bottom) {
             return {
               x: targetRect.right - magic,
@@ -149,27 +159,27 @@ export class Edge extends Component<EdgeProps, EdgeState> {
           x: sourceRect.right,
           y: Math.min(eventCenterPt.y, sourceRect.bottom)
         }),
-        prevPt => ({
+        (prevPt) => ({
           x: eventRect.left,
           y: eventCenterPt.y
         }),
-        prevPt => ({
+        (prevPt) => ({
           x: eventRect.right,
           y: eventCenterPt.y
         }),
-        prevPt => ({
+        (prevPt) => ({
           x: eventRect.right + magic,
           y: eventRect.bottom
         }),
-        prevPt => ({
+        (prevPt) => ({
           x: eventRect.right + magic * 2,
           y: eventCenterPt.y
         }),
-        prevPt => ({
+        (prevPt) => ({
           x: eventRect.right + magic,
           y: eventRect.top
         }),
-        prevPt => ({
+        (prevPt) => ({
           x: eventRect.right,
           y: eventCenterPt.y
         })
@@ -263,7 +273,7 @@ export class Edge extends Component<EdgeProps, EdgeState> {
 
       if (xDir === -1) {
         if (yDir === -1) {
-          ptFns.push(prevPt => ({
+          ptFns.push((prevPt) => ({
             x: prevPt.x,
             y: Math.min(sourceRect.top - magic, targetRect.top - magic)
           }));
@@ -278,16 +288,16 @@ export class Edge extends Component<EdgeProps, EdgeState> {
           // }));
 
           if (sourceRect.bottom > startPt.y + magic) {
-            ptFns.push(prevPt => ({
+            ptFns.push((prevPt) => ({
               x: prevPt.x,
               y: Math.min(sourceRect.bottom + magic, endPt.y - magic)
             }));
-            ptFns.push(prevPt => ({
+            ptFns.push((prevPt) => ({
               x: prevPt.x + magic * xDir,
               y: prevPt.y
             }));
           } else {
-            ptFns.push(prevPt => ({
+            ptFns.push((prevPt) => ({
               x: prevPt.x,
               y: Math.min(eventContainerRect.bottom + magic, endPt.y - magic)
             }));
@@ -307,15 +317,15 @@ export class Edge extends Component<EdgeProps, EdgeState> {
         }));
       }
 
-      ptFns.push(() => endPt, () => endPt);
+      ptFns.push(
+        () => endPt,
+        () => endPt
+      );
     }
-    const pts = ptFns.reduce(
-      (acc, ptFn, i) => {
-        acc.push(ptFn(acc[i - 1] || acc[0]));
-        return acc;
-      },
-      [] as Point[]
-    );
+    const pts = ptFns.reduce((acc, ptFn, i) => {
+      acc.push(ptFn(acc[i - 1] || acc[0]));
+      return acc;
+    }, [] as Point[]);
 
     const circles: Point[] = pts.slice();
 
@@ -350,9 +360,7 @@ export class Edge extends Component<EdgeProps, EdgeState> {
       return (
         // acc + `L ${midpoint1.x},${midpoint1.y} L ${midpoint2.x},${midpoint2.y}`
         acc +
-        `L ${midpoint1.x},${midpoint1.y} Q ${point.x},${point.y} ${
-          midpoint2.x
-        },${midpoint2.y} `
+        `L ${midpoint1.x},${midpoint1.y} Q ${point.x},${point.y} ${midpoint2.x},${midpoint2.y} `
       );
     }, '');
 
