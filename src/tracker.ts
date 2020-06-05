@@ -27,7 +27,7 @@ class Tracker {
   }
 
   updateAll(): void {
-    Array.from(this.elements.keys()).forEach(key => {
+    Array.from(this.elements.keys()).forEach((key) => {
       this.update(key, this.elements.get(key)!.element);
     });
   }
@@ -53,7 +53,7 @@ class Tracker {
     if (element) {
       const desc = element.querySelectorAll(`[data-id]`);
 
-      Array.from(desc).forEach(el => {
+      Array.from(desc).forEach((el) => {
         const id = el.getAttribute(`data-id`)!;
 
         this.update(id, el);
@@ -77,6 +77,12 @@ class Tracker {
     this.notify(data);
   }
 
+  unlisten(id: string) {
+    if (this.elements.get(id)) {
+      this.elements.delete(id);
+    }
+  }
+
   get(id: string): TrackerData | undefined {
     if (this.elements.get(id)) {
       return this.elements.get(id);
@@ -86,7 +92,7 @@ class Tracker {
   }
 
   notify(data: TrackerData) {
-    data.listeners.forEach(listener => {
+    data.listeners.forEach((listener) => {
       listener(data);
     });
   }
