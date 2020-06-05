@@ -11,6 +11,7 @@ declare class Tracker {
     updateAll(): void;
     update(id: string, element: Element | null | undefined): void;
     listen(id: string, listener: Listener): void;
+    unlisten(id: string): void;
     get(id: string): TrackerData | undefined;
     notify(data: TrackerData): void;
 }

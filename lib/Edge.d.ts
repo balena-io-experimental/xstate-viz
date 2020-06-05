@@ -25,6 +25,7 @@ export declare class Edge extends Component<EdgeProps, EdgeState> {
     };
     ref: React.RefObject<SVGPathElement>;
     componentDidMount(): void;
+    componentWillUnmount(): void;
     render(): JSX.Element | null;
 }
 export {};
