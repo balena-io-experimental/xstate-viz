@@ -42,7 +42,7 @@
     "query-string": "^6.11.0",
     "react-ace": "^6.6.0",
     "react-syntax-highlighter": "^10.3.5",
-    "xstate": "^4.6.7"
+    "xstate": "~4.6.7"
   },
   "peerDependencies": {
     "styled-components": "^5.1.1",
