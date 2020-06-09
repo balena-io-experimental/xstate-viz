@@ -123,37 +123,39 @@ const StyledDetails = styled.details`
 `;
 
 function mergeDocs(meta: any) {
-  const docs = Object.keys(meta).reduce((map, key) => {
-    const entry = meta[key];
+  const docs = Object.keys(meta)
+    .sort()
+    .reduce((map, key) => {
+      const entry = meta[key];
 
-    // if meta entry has documentation
-    if (entry.description) {
-      // generate titles from state hierarchy
-      key.split('.').reduce((parent, child, index) => {
-        const id = [parent, child].join('.');
-        const title =
-          id === key && entry.title
-            ? entry.title
-            : child.charAt(0).toUpperCase() + child.slice(1);
-        if (!map.has(id)) {
-          map.set(id, ['#'.repeat(index + 1) + ' ' + title]);
+      // if meta entry has documentation
+      if (entry.description) {
+        // generate titles from state hierarchy
+        key.split('.').reduce((parent, child, index) => {
+          const id = [parent, child].join('.');
+          const title =
+            id === key && entry.title
+              ? entry.title
+              : child.charAt(0).toUpperCase() + child.slice(1);
+          if (!map.has(id)) {
+            map.set(id, ['#'.repeat(index + 1) + ' ' + title]);
+          }
+          return id;
+        });
+
+        if (!map.has(key)) {
+          map.set(key, []);
         }
-        return id;
-      });
 
-      if (!map.has(key)) {
-        map.set(key, []);
+        // append documentation body
+        map.get(key)?.push(entry.description);
       }
 
-      // append documentation body
-      map.get(key)?.push(entry.description);
-    }
-
-    return map;
-  }, new Map<string, string[]>());
+      return map;
+    }, new Map<string, string[]>());
 
   if (docs.size === 0) {
-    return 'No documentation has been provided';
+    return 'No documentation has been provided for this chart';
   }
 
   return Array.from(docs)
