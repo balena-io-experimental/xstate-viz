@@ -148,14 +148,26 @@ function mergeDocs(meta: any) {
         }
 
         // append documentation body
-        map.get(key)?.push(entry.description);
+        map.get(key)?.push(
+          // remove space from code indentation
+          // TODO: this wont allow multiple level lists
+          entry.description
+            .split('\n\n')
+            .map((str: string) =>
+              str
+                .split('\n')
+                .map((s: string) => s.trim())
+                .join(' ')
+            )
+            .join('\n\n')
+        );
       }
 
       return map;
     }, new Map<string, string[]>());
 
   if (docs.size === 0) {
-    return 'No documentation has been provided for this chart';
+    return 'No documentation has been provided for this machine';
   }
 
   return Array.from(docs)
