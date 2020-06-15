@@ -15,7 +15,7 @@ import {
 } from './utils';
 import { EventName } from './EventName';
 import { tracker } from './tracker';
-import { getEdges } from 'xstate/lib/graph';
+import { getEdges } from './utils';
 import { StyledButton } from './Button';
 import { actionTypes } from 'xstate/lib/actions';
 import { StateChartAction } from './StateChartAction';
@@ -459,7 +459,7 @@ interface StateChartNodeProps {
   level: number;
 }
 
-export const StateChartNode: React.FC<StateChartNodeProps> = props => {
+export const StateChartNode: React.FC<StateChartNodeProps> = (props) => {
   // get toggled value from localStorage
   const toggledValue = localStorage.getItem(`${props.stateNode.id}_toggled`);
   const toggled = toggledValue === null || toggledValue === '1';
@@ -490,7 +490,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = props => {
 
   useEffect(() => {
     if (
-      current.actions.some(action => {
+      current.actions.some((action) => {
         return (
           action.type === 'xstate.cancel' &&
           action.sendId.indexOf(stateNode.id) > 0
@@ -553,7 +553,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = props => {
         {!!stateActions(stateNode).length && (
           <>
             <StyledStateNodeActions>
-              {stateNode.definition.onEntry.map(action => {
+              {stateNode.definition.onEntry.map((action) => {
                 const actionString = action.type;
 
                 return (
@@ -566,7 +566,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = props => {
               })}
             </StyledStateNodeActions>
             <StyledStateNodeActions>
-              {stateNode.definition.onExit.map(action => {
+              {stateNode.definition.onExit.map((action) => {
                 const actionString = action.type;
                 return (
                   <StateChartAction
@@ -580,7 +580,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = props => {
           </>
         )}
         <StyledStateNodeActions data-title="invoke">
-          {stateNode.invoke.map(invocation => {
+          {stateNode.invoke.map((invocation) => {
             return (
               <StateChartAction
                 key={invocation.id}
@@ -594,7 +594,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = props => {
         </StyledStateNodeActions>
         {Object.keys(stateNode.states).length ? (
           <StyledChildStates>
-            {Object.keys(stateNode.states || []).map(key => {
+            {Object.keys(stateNode.states || []).map((key) => {
               const childStateNode = stateNode.states[key];
 
               return (
@@ -618,7 +618,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = props => {
         {Object.keys(stateNode.states).length > 0 ? (
           <StyledChildStatesToggle
             title={toggledState ? 'Hide children' : 'Show children'}
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
 
               // remember toggled value
@@ -634,7 +634,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = props => {
         ) : null}
       </StyledStateNodeState>
       <StyledStateNodeEvents>
-        {getEdges(stateNode, { depth: 0 }).map(edge => {
+        {getEdges(stateNode, { depth: 0 }).map((edge) => {
           const { event: ownEvent } = edge;
           const isBuiltInEvent = ownEvent.indexOf('xstate.') === 0;
           const guard = edge.transition.cond;
@@ -657,7 +657,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = props => {
             delay =
               typeof delayExpr === 'number'
                 ? delayExpr
-                : delayExpr(current.context, current.event);
+                : delayExpr(current.context, current.event, current.meta);
           }
 
           const isTransient = ownEvent === '';

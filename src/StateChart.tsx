@@ -1,27 +1,23 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useService } from '@xstate/react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import * as XState from 'xstate';
 import {
-  Machine as _Machine,
-  StateNode,
-  State,
-  EventObject,
-  Machine,
   assign,
-  send,
-  spawn,
+  EventObject,
   interpret,
   Interpreter,
-  StateMachine
+  Machine,
+  send,
+  spawn,
+  State,
+  StateNode
 } from 'xstate';
-import * as XState from 'xstate';
-import { StateChartContainer, StyledStateChartContainer } from './VizTabs';
-import { StatePanel } from './StatePanel';
-import { EventPanel } from './EventPanel';
-import { CodePanel } from './CodePanel';
 import { raise } from 'xstate/lib/actions';
-import { getEdges } from 'xstate/lib/graph';
-import { notificationsActor } from './Header';
-import { useMachine, useService } from '@xstate/react';
+import { EventPanel } from './EventPanel';
+import { StatePanel } from './StatePanel';
+import { DocsPanel } from './DocsPanel';
+import { StateChartContainer, StyledStateChartContainer } from './VizTabs';
 
 const StyledViewTab = styled.li`
   padding: 0 1rem;
@@ -217,7 +213,7 @@ export const StateChart: React.FC<StateChartProps> = ({
       return {
         preview: undefined,
         previewEvent: undefined,
-        view: 'definition', // or 'state'
+        view: 'state',
         machine: _machine,
         code:
           typeof _machine === 'string'
@@ -229,20 +225,17 @@ export const StateChart: React.FC<StateChartProps> = ({
     })()
   );
 
-  function renderView(current: State<any, any>, service: Interpreter<any, any, EventObject>) {
-    const { view, code } = allState;
+  function renderView(
+    current: State<any, any>,
+    service: Interpreter<any, any, EventObject>
+  ) {
+    const { view } = allState;
 
     switch (view) {
-      case 'definition':
-        return (
-          <CodePanel
-            code={code}
-            onChange={code => updateMachine(code)}
-            onSave={onSave}
-          />
-        );
       case 'state':
         return <StatePanel state={current} service={service} />;
+      case 'docs':
+        return <DocsPanel state={current} service={service} />;
       case 'events':
         return (
           <EventPanel state={current} service={service} records={events} />
@@ -252,29 +245,12 @@ export const StateChart: React.FC<StateChartProps> = ({
     }
   }
 
-  function updateMachine(code: string) {
-    let machine: StateNode;
-
-    try {
-      machine = toMachine(code);
-      getEdges(machine);
-    } catch (e) {
-      notificationsActor.notify({
-        message: 'Failed to update machine',
-        severity: 'error',
-        description: e.message
-      });
-      console.error(e);
-      return;
-    }
-
-    reset(code, machine);
-  }
   function reset(code = allState.code, machine = allState.machine) {
+    console.log(code);
     setEvents([]);
     setResetCount(resetCount + 1);
     setMachine(machine);
-    setState({...allState, code});
+    setState({ ...allState, code });
   }
 
   const { code } = allState;
@@ -290,7 +266,7 @@ export const StateChart: React.FC<StateChartProps> = ({
       <StateChartContainer service={service} onReset={() => reset()} />
       <StyledSidebar>
         <StyledViewTabs>
-          {['definition', 'state', 'events'].map(view => {
+          {['state', 'docs', 'events'].map((view) => {
             return (
               <StyledViewTab
                 onClick={() => setState({ ...allState, view })}

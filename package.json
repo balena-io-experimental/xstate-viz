@@ -1,17 +1,14 @@
 {
-  "name": "@statecharts/xstate-viz",
-  "version": "0.3.0",
+  "name": "@balena/xstate-viz",
+  "version": "0.4.0",
   "description": "Visualizer for XState.",
   "main": "lib/index.js",
   "scripts": {
-    "start": "cd public/src && npm start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "examples": "tsc && ncp lib examples/src/lib && cd examples && npm start",
     "build": "tsc",
     "build:watch": "tsc -w",
-    "prepublishOnly": "tsc",
-    "develop": "npm link && concurrently \"tsc -w\" \"cd public && npm link @statecharts/xstate-viz && npm start\"",
-    "deploy": "cd public && npm run deploy"
+    "prepublishOnly": "tsc"
   },
   "files": [
     "lib"
