@@ -246,7 +246,6 @@ export const StateChart: React.FC<StateChartProps> = ({
   }
 
   function reset(code = allState.code, machine = allState.machine) {
-    console.log(code);
     setEvents([]);
     setResetCount(resetCount + 1);
     setMachine(machine);
