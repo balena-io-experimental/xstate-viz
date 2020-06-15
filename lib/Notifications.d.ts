@@ -9,7 +9,10 @@ export interface Notification {
 interface NotificationsContext {
     notifications: Array<Notification>;
 }
-export declare const notificationsMachine: import("xstate").StateMachine<NotificationsContext, any, import("xstate").EventObject>;
+export declare const notificationsMachine: import("xstate").StateMachine<NotificationsContext, any, import("xstate").AnyEventObject, any>;
+export declare const notificationsActor: Actor & {
+    notify: (message: string | Notification) => void;
+};
 interface NotificationsProps {
     notifier: Actor<State<NotificationsContext>>;
 }

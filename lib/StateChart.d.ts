@@ -1,5 +1,5 @@
 import React from 'react';
-import { StateNode, State, EventObject } from 'xstate';
+import { EventObject, State, StateNode } from 'xstate';
 export declare const StyledStateChart: import("styled-components").StyledComponent<"div", any, {}, never>;
 interface StateChartProps {
     className?: string;
