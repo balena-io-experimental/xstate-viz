@@ -2,10 +2,12 @@ import {
   StateNode,
   TransitionDefinition,
   Edge,
-  Action,
   ActionObject,
   Guard,
-  EventObject
+  EventObject,
+  DefaultContext,
+  Action,
+  ActionType
 } from 'xstate';
 
 export function isChildOf(
@@ -100,7 +102,7 @@ export function initialStateNodes(stateNode: StateNode): StateNode[] {
 
   return stateNode.initialStateNodes.concat(
     flatten(
-      stateKeys.map(key => {
+      stateKeys.map((key) => {
         const childStateNode = stateNode.states[key];
         if (
           childStateNode.type === 'compound' ||
@@ -138,4 +140,113 @@ export function isBuiltInEvent(eventType: string): boolean {
     eventType.indexOf('done.') === 0 ||
     eventType === ''
   );
+}
+
+export function getActionType(action: Action<any, any>): ActionType {
+  try {
+    return typeof action === 'string' || typeof action === 'number'
+      ? `${action}`
+      : typeof action === 'function'
+      ? action.name
+      : action.type;
+  } catch (e) {
+    throw new Error(
+      'Actions must be strings or objects with a string action.type property.'
+    );
+  }
+}
+
+export function getEventEdges<
+  TContext = DefaultContext,
+  TEvent extends EventObject = EventObject
+>(
+  node: StateNode<TContext, any, TEvent>,
+  event: string
+): Array<Edge<TContext, TEvent>> {
+  const transitions: Array<TransitionDefinition<TContext, TEvent>> =
+    node.definition.on[event];
+
+  return flatten(
+    transitions.map((transition) => {
+      const targets = transition.target
+        ? ([] as StateNode<TContext, any, TEvent, any>[]).concat(
+            transition.target
+          )
+        : undefined;
+
+      if (!targets) {
+        return [
+          {
+            source: node,
+            target: node,
+            event,
+            actions: transition.actions
+              ? transition.actions.map(getActionType)
+              : [],
+            cond: transition.cond,
+            transition
+          }
+        ];
+      }
+
+      return targets
+        .map<Edge<TContext, TEvent> | undefined>((target) => {
+          try {
+            const targetNode = target
+              ? node.getRelativeStateNodes(target, undefined, false)[0]
+              : node;
+
+            return {
+              source: node,
+              target: targetNode,
+              event,
+              actions: transition.actions
+                ? transition.actions.map(getActionType)
+                : [],
+              cond: transition.cond,
+              transition
+            };
+          } catch (e) {
+            if (process.env.NODE_ENV != 'production') {
+              console.warn(e, `Target '${target}' not found on '${node.id}'`);
+            }
+            return undefined;
+          }
+        })
+        .filter((maybeEdge) => maybeEdge !== undefined) as Array<
+        Edge<TContext, TEvent>
+      >;
+    })
+  );
+}
+
+export function getEdges<
+  TContext = DefaultContext,
+  TEvent extends EventObject = EventObject
+>(
+  node: StateNode<TContext, any, TEvent>,
+  options?: { depth: null | number }
+): Array<Edge<TContext, TEvent>> {
+  const { depth = null } = options || {};
+  const edges: Array<Edge<TContext, TEvent>> = [];
+
+  if (node.states && depth === null) {
+    for (const stateKey of Object.keys(node.states)) {
+      edges.push(...getEdges(node.states[stateKey]));
+    }
+  } else if (depth && depth > 0) {
+    for (const stateKey of Object.keys(node.states)) {
+      edges.push(
+        ...getEdges(node.states[stateKey], {
+          depth: depth - 1
+        })
+      );
+    }
+  }
+
+  for (const event of Object.keys(node.on)) {
+    edges.push(...getEventEdges<TContext, TEvent>(node, event));
+  }
+
+  return edges;
 }
