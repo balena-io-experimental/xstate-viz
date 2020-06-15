@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getEdges } from 'xstate/lib/graph';
+import { getEdges } from './utils';
 import { serializeEdge, initialStateNodes } from './utils';
 import { Edge } from './Edge';
 import { InitialEdge } from './InitialEdge';
@@ -89,7 +89,7 @@ export const StateChartVisualization: React.SFC<{
             <path d="M0,0 L0,4 L4,2 z" fill="var(--color-edge-active)" />
           </marker>
         </defs>
-        {edges.map(edge => {
+        {edges.map((edge) => {
           if (!svgRef.current) {
             return;
           }
@@ -136,10 +136,10 @@ export const StateChartVisualization: React.SFC<{
         level={0}
         preview={state.preview}
         onReset={onReset}
-        onEvent={event => {
+        onEvent={(event) => {
           send(event);
         }}
-        onPreEvent={event => {
+        onPreEvent={(event) => {
           if (!state.preview) {
             setState({
               ...state,
@@ -155,7 +155,7 @@ export const StateChartVisualization: React.SFC<{
             previewEvent: undefined
           });
         }}
-        onSelectServiceId={serviceId => {
+        onSelectServiceId={(serviceId) => {
           const s = (service as any).children.get(serviceId);
 
           if (s) {

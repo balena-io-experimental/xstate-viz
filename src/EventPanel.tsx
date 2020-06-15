@@ -7,12 +7,12 @@ import { useMachine } from '@xstate/react';
 import { StyledButton } from './Button';
 import { EventRecord } from './StateChart';
 import { format } from 'date-fns';
-import { notificationsActor } from './Header';
+import { notificationsActor } from './Notifications';
 
 function getNextEvents(state: State<any>): string[] {
   const { nextEvents } = state;
 
-  return nextEvents.filter(eventType => {
+  return nextEvents.filter((eventType) => {
     return !isBuiltInEvent(eventType);
   });
 }
@@ -228,7 +228,7 @@ export const EventPanel: React.FunctionComponent<{
                       </StyledButton>
                       <StyledButton
                         data-variant="link"
-                        onClick={e => {
+                        onClick={(e) => {
                           e.stopPropagation();
 
                           send('AUTOFILL', { value: pastEventCode });
@@ -250,11 +250,11 @@ export const EventPanel: React.FunctionComponent<{
       </StyledEventPanelEvents>
       <StyledEventPanelEditor>
         <StyledEventPanelButtons>
-          {getNextEvents(state).map(nextEvent => {
+          {getNextEvents(state).map((nextEvent) => {
             return (
               <StyledEventPanelButton
                 key={nextEvent}
-                onClick={e => {
+                onClick={(e) => {
                   e.stopPropagation();
                   send('AUTOFILL', {
                     value: JSON.stringify(
@@ -273,7 +273,7 @@ export const EventPanel: React.FunctionComponent<{
           })}
         </StyledEventPanelButtons>
         <AceEditor
-          ref={r => {
+          ref={(r) => {
             if (!r) {
               return;
             }
@@ -283,7 +283,7 @@ export const EventPanel: React.FunctionComponent<{
           theme="monokai"
           editorProps={{ $blockScrolling: true }}
           value={current.context.eventCode}
-          onChange={value => {
+          onChange={(value) => {
             send('UPDATE', { value });
           }}
           setOptions={{ tabSize: 2, fontSize: '12px' }}

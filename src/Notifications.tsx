@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Machine, assign, State, actions } from 'xstate';
+import { Machine, assign, State, interpret } from 'xstate';
 import { Actor } from 'xstate/lib/Actor';
 import { produce } from 'immer';
-import { useMachine } from '@xstate/react';
 import { log } from 'xstate/lib/actions';
 import styled from 'styled-components';
-import { notificationsActor } from './Header';
 
 export interface Notification {
   message: string;
@@ -31,8 +29,10 @@ export const notificationsMachine = Machine<NotificationsContext>({
         'NOTIFICATION.DISMISS': {
           actions: assign<NotificationsContext>({
             notifications: (ctx, e) =>
-              produce(ctx.notifications, draft => {
-                draft.splice(e.index, 1);
+              produce(ctx.notifications, (draft) => {
+                // TODO
+                console.log(e);
+                //draft.splice(e.index, 1);
               })
           })
         }
@@ -44,13 +44,32 @@ export const notificationsMachine = Machine<NotificationsContext>({
       target: '.active',
       actions: assign<NotificationsContext>({
         notifications: (ctx, e) =>
-          produce(ctx.notifications, draft => {
-            draft.unshift(e.data);
+          produce(ctx.notifications, (draft) => {
+            console.log(e);
+            //draft.unshift(e.data);
           })
       })
     }
   }
 });
+
+// TODO: move this somewhere else
+const notificationsService = interpret(notificationsMachine).start();
+
+export const notificationsActor: Actor & {
+  notify: (message: string | Notification) => void;
+} = {
+  toJSON: () => ({ id: 'notifications' }),
+  id: 'notifications',
+  send: notificationsService.send.bind(notificationsService),
+  subscribe: notificationsService.subscribe.bind(notificationsService),
+  notify: (message: string | Notification) =>
+    notificationsService.send({
+      type: 'NOTIFICATIONS.QUEUE',
+      data:
+        typeof message === 'string' ? { message, severity: 'info' } : message
+    })
+};
 
 interface NotificationsProps {
   notifier: Actor<State<NotificationsContext>>;
@@ -142,7 +161,7 @@ export const Notifications: React.FunctionComponent<NotificationsProps> = ({
   >();
 
   useEffect(() => {
-    notifier.subscribe(state => {
+    notifier.subscribe((state) => {
       setCurrent(state);
     });
   }, []);
@@ -166,7 +185,7 @@ export const Notifications: React.FunctionComponent<NotificationsProps> = ({
               '--index': i
             }}
             onClick={() =>
-              notificationsActor.send({
+              notifier.send({
                 type: 'NOTIFICATION.DISMISS',
                 index: i
               })
