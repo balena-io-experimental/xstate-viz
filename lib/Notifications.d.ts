@@ -1,5 +1,5 @@
 import React from 'react';
-import { State } from 'xstate';
+import { AnyEventObject, State } from 'xstate';
 import { Actor } from 'xstate/lib/Actor';
 export interface Notification {
     message: string;
@@ -9,7 +9,7 @@ export interface Notification {
 interface NotificationsContext {
     notifications: Array<Notification>;
 }
-export declare const notificationsMachine: import("xstate").StateMachine<NotificationsContext, any, import("xstate").AnyEventObject, any>;
+export declare const notificationsMachine: import("xstate").StateMachine<NotificationsContext, any, AnyEventObject, any>;
 export declare const notificationsActor: Actor & {
     notify: (message: string | Notification) => void;
 };
