@@ -11,7 +11,8 @@ import {
   condToString,
   serializeEdge,
   stateActions,
-  getEventDelay
+  getEventDelay,
+  setEventDelay
 } from './utils';
 import { EventName } from './EventName';
 import { tracker } from './tracker';
@@ -635,7 +636,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = (props) => {
       </StyledStateNodeState>
       <StyledStateNodeEvents>
         {getEdges(stateNode, { depth: 0 }).map((edge) => {
-          const { event: ownEvent } = edge;
+          let { event: ownEvent } = edge;
           const isBuiltInEvent = ownEvent.indexOf('xstate.') === 0;
           const guard = edge.transition.cond;
           const valid =
@@ -650,16 +651,29 @@ export const StateChartNode: React.FC<StateChartNodeProps> = (props) => {
           //   typeof edge.cond === 'function' &&
           //   !edge.cond(current.context, { type: ownEvent }, { cond: undefined, }));
 
-          let delay = isBuiltInEvent ? getEventDelay(ownEvent) : false;
-
+          const transition = edge.transition as DelayedTransitionDefinition<
+            any,
+            any
+          >;
+          let delay = isBuiltInEvent ? getEventDelay(ownEvent) : undefined;
+          let ownEventName = ownEvent;
           if (typeof delay === 'string') {
             const delayExpr = stateNode.machine.options.delays[delay];
-            delay =
-              typeof delayExpr === 'number'
-                ? delayExpr
-                : delayExpr(current.context, current.event, current.meta);
+            if (delayExpr) {
+              delay =
+                typeof delayExpr === 'number'
+                  ? delayExpr
+                  : delayExpr(current.context, current.event, current.meta);
+              ownEventName = setEventDelay(ownEvent, +delay);
+            } else if (typeof transition.delay === 'function') {
+              delay = transition.delay(
+                current.context,
+                current.event,
+                current.meta
+              );
+              ownEventName = setEventDelay(ownEvent, +delay);
+            }
           }
-
           const isTransient = ownEvent === '';
 
           return (
@@ -679,10 +693,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = (props) => {
                 onMouseOver={() => onPreEvent(ownEvent)}
                 onMouseOut={() => onExitPreEvent()}
                 disabled={disabled}
-                data-delay={
-                  (edge.transition as DelayedTransitionDefinition<any, any>)
-                    .delay
-                }
+                data-delay={delay}
                 key={timerRestarts}
                 data-builtin={isBuiltInEvent || undefined}
                 data-transient={isTransient || undefined}
@@ -690,7 +701,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = (props) => {
                 title={ownEvent}
               >
                 <StyledEventButtonLabel>
-                  <EventName event={ownEvent} />
+                  <EventName event={ownEventName} />
                 </StyledEventButtonLabel>
                 {edge.transition.cond && (
                   <StateChartGuard
