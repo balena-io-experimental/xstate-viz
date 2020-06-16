@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Machine, assign, State, interpret } from 'xstate';
+import { AnyEventObject, Machine, assign, State, interpret } from 'xstate';
 import { Actor } from 'xstate/lib/Actor';
 import { produce } from 'immer';
 import { log } from 'xstate/lib/actions';
@@ -28,11 +28,9 @@ export const notificationsMachine = Machine<NotificationsContext>({
       on: {
         'NOTIFICATION.DISMISS': {
           actions: assign<NotificationsContext>({
-            notifications: (ctx, e) =>
+            notifications: (ctx, e: AnyEventObject) =>
               produce(ctx.notifications, (draft) => {
-                // TODO
-                console.log(e);
-                //draft.splice(e.index, 1);
+                draft.splice(e.index, 1);
               })
           })
         }
@@ -43,10 +41,9 @@ export const notificationsMachine = Machine<NotificationsContext>({
     'NOTIFICATIONS.QUEUE': {
       target: '.active',
       actions: assign<NotificationsContext>({
-        notifications: (ctx, e) =>
+        notifications: (ctx, e: AnyEventObject) =>
           produce(ctx.notifications, (draft) => {
-            console.log(e);
-            //draft.unshift(e.data);
+            draft.unshift(e.data);
           })
       })
     }
