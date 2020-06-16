@@ -553,7 +553,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = (props) => {
         {!!stateActions(stateNode).length && (
           <>
             <StyledStateNodeActions>
-              {stateNode.definition.onEntry.map((action) => {
+              {stateNode.definition.entry.map((action) => {
                 const actionString = action.type;
 
                 return (
@@ -566,7 +566,7 @@ export const StateChartNode: React.FC<StateChartNodeProps> = (props) => {
               })}
             </StyledStateNodeActions>
             <StyledStateNodeActions>
-              {stateNode.definition.onExit.map((action) => {
+              {stateNode.definition.exit.map((action) => {
                 const actionString = action.type;
                 return (
                   <StateChartAction
