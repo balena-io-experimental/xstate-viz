@@ -52,6 +52,8 @@ const StyledViewTabs = styled.ul`
   flex-shrink: 0;
   position: sticky;
   top: 0;
+  z-index: 1;
+  background: var(--color-sidebar);
 `;
 
 const StyledSidebar = styled.div`
