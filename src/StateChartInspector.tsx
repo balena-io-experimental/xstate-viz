@@ -92,7 +92,7 @@ function layoutReducer(state: string, event: string) {
 }
 
 export const StateChartInspector: React.FC<{
-  machine: StateNode<any, any, any>;
+  machine: StateNode<any, any, any> | StateNode<any, any, any>[];
 }> = ({ machine }) => {
   const [layout, dispatchLayout] = useReducer(
     layoutReducer,
