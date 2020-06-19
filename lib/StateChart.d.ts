@@ -3,7 +3,7 @@ import { EventObject, State, StateNode } from 'xstate';
 export declare const StyledStateChart: import("styled-components").StyledComponent<"div", any, {}, never>;
 interface StateChartProps {
     className?: string;
-    machine: StateNode<any> | string;
+    machine: StateNode<any> | StateNode<any>[];
     onSave: (machineString: string) => void;
     height?: number | string;
 }

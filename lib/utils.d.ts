@@ -5,6 +5,7 @@ export declare function transitions(stateNode: StateNode): TransitionDefinition<
 export declare function condToString(cond: Guard<any, any>): string;
 export declare const DELAY_EVENT_REGEX: RegExp;
 export declare function getEventDelay(event: string): string | number | false;
+export declare function setEventDelay(event: string, delay: number): string;
 export declare function serializeEdge(edge: Edge<any, any>): string;
 export declare function isHidden(el?: Element | null): el is null;
 export declare function relative(childRect: ClientRect, parentElement: Element): ClientRect;
