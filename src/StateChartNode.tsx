@@ -690,8 +690,8 @@ export const StateChartNode: React.FC<StateChartNodeProps> = (props) => {
                 onClick={() =>
                   !isBuiltInEvent ? onEvent(ownEvent) : undefined
                 }
-                onMouseOver={() => onPreEvent(ownEvent)}
-                onMouseOut={() => onExitPreEvent()}
+                onMouseEnter={() => onPreEvent(ownEvent)}
+                onMouseLeave={() => onExitPreEvent()}
                 disabled={disabled}
                 data-delay={delay}
                 key={timerRestarts}
