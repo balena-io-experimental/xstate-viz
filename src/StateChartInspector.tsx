@@ -92,7 +92,7 @@ function layoutReducer(state: string, event: string) {
 }
 
 export const StateChartInspector: React.FC<{
-  machine: StateNode<any, any, any>;
+  machine: StateNode<any, any, any> | StateNode<any, any, any>[];
 }> = ({ machine }) => {
   const [layout, dispatchLayout] = useReducer(
     layoutReducer,
@@ -105,7 +105,7 @@ export const StateChartInspector: React.FC<{
       <>
         <StateChart machine={machine} onSave={() => void 0} />
         <LayoutButton onClick={() => dispatchLayout('TOGGLE')}>
-          {({ full: 'Hide', viz: 'Context' } as Record<string, string>)[
+          {({ full: 'Hide', viz: 'Details' } as Record<string, string>)[
             layout
           ] || 'Show'}
         </LayoutButton>

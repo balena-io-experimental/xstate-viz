@@ -9,14 +9,10 @@ interface StateChartContainerProps {
 }
 
 export const StyledStateChartContainer = styled.section`
-  display: grid;
-  grid-column-gap: 1rem;
-  grid-row-gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  height: min-content;
   padding: 0 1rem;
-
-  &[data-child] {
-    grid-template-columns: 1fr 1fr;
-  }
 `;
 
 export const StateChartContainer: React.SFC<StateChartContainerProps> = ({
@@ -31,6 +27,22 @@ export const StateChartContainer: React.SFC<StateChartContainerProps> = ({
         onSelectService={() => void 0}
         onReset={onReset}
       />
+
+      {Array.from(service.children.values()).map((child: any) => {
+        if (!child.state) {
+          return null;
+        }
+
+        return (
+          <StateChartVisualization
+            key={JSON.stringify(child)}
+            service={child}
+            visible={true}
+            onSelectService={() => void 0}
+            onReset={onReset}
+          />
+        );
+      })}
     </StyledStateChartContainer>
   );
 };

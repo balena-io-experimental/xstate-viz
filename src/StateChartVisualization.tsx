@@ -11,6 +11,7 @@ import { useService } from '@xstate/react';
 const StyledVisualization = styled.div`
   position: relative;
   max-height: inherit;
+  margin: 0.5rem;
   overflow-y: auto;
 `;
 

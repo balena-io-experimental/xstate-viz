@@ -17,6 +17,7 @@ import { raise } from 'xstate/lib/actions';
 import { EventPanel } from './EventPanel';
 import { StatePanel } from './StatePanel';
 import { DocsPanel } from './DocsPanel';
+import { ListPanel } from './ListPanel';
 import { StateChartContainer, StyledStateChartContainer } from './VizTabs';
 
 const StyledViewTab = styled.li`
@@ -52,6 +53,8 @@ const StyledViewTabs = styled.ul`
   flex-shrink: 0;
   position: sticky;
   top: 0;
+  z-index: 1;
+  background: var(--color-sidebar);
 `;
 
 const StyledSidebar = styled.div`
@@ -108,7 +111,7 @@ export const StyledStateChart = styled.div`
 
 interface StateChartProps {
   className?: string;
-  machine: StateNode<any> | string;
+  machine: StateNode<any> | StateNode<any>[];
   onSave: (machineString: string) => void;
   height?: number | string;
 }
@@ -186,10 +189,14 @@ export const StateChart: React.FC<StateChartProps> = ({
   const [resetCount, setResetCount] = useState(0);
   const [events, setEvents] = useState<EventRecord[]>([]);
 
-  const [machine, setMachine] = useState(toMachine(props.machine));
+  const machines =
+    props.machine instanceof Array ? props.machine : [props.machine];
+  const _machine = toMachine(machines[0]);
+
+  const [machine, setMachine] = useState(_machine);
   useEffect(() => {
-    setMachine(toMachine(props.machine));
-  }, [props.machine]);
+    setMachine(_machine);
+  }, [_machine]);
 
   const service = useMemo(() => {
     return interpret(machine).start();
@@ -208,8 +215,6 @@ export const StateChart: React.FC<StateChartProps> = ({
 
   const [allState, setState] = useState<StateChartState>(
     (() => {
-      const _machine = toMachine(props.machine);
-
       return {
         preview: undefined,
         previewEvent: undefined,
@@ -240,6 +245,27 @@ export const StateChart: React.FC<StateChartProps> = ({
         return (
           <EventPanel state={current} service={service} records={events} />
         );
+      case 'models':
+        return (
+          <ListPanel
+            service={service}
+            machines={machines}
+            onUpdate={(machine) => {
+              setEvents([]);
+              setResetCount(0);
+              setMachine(machine);
+
+              const code = (() => {
+                const _machine = toMachine(machine);
+
+                return typeof _machine === 'string'
+                  ? _machine
+                  : `Machine(${JSON.stringify(_machine.config, null, 2)})`;
+              })();
+              setState({ ...allState, code });
+            }}
+          />
+        );
       default:
         return null;
     }
@@ -253,6 +279,10 @@ export const StateChart: React.FC<StateChartProps> = ({
   }
 
   const { code } = allState;
+  const views = ['state', 'docs', 'events'];
+  if (machines.length > 1) {
+    views.push('models');
+  }
 
   return (
     <StyledStateChart
@@ -265,7 +295,7 @@ export const StateChart: React.FC<StateChartProps> = ({
       <StateChartContainer service={service} onReset={() => reset()} />
       <StyledSidebar>
         <StyledViewTabs>
-          {['state', 'docs', 'events'].map((view) => {
+          {views.map((view) => {
             return (
               <StyledViewTab
                 onClick={() => setState({ ...allState, view })}

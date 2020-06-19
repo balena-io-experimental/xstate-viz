@@ -63,6 +63,14 @@ export function getEventDelay(event: string): string | number | false {
   return false;
 }
 
+export function setEventDelay(event: string, delay: number): string {
+  let match = event.match(DELAY_EVENT_REGEX);
+  if (match) {
+    return event.replace(match[1], delay.toString());
+  }
+  return event;
+}
+
 export function serializeEdge(edge: Edge<any, any>): string {
   const cond = edge.cond ? `[${edge.cond.toString().replace(/\n/g, '')}]` : '';
   return `${edge.source.id}:${edge.event}${cond}->${edge.target.id}`;
