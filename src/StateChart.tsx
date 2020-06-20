@@ -262,7 +262,7 @@ export const StateChart: React.FC<StateChartProps> = ({
                   ? _machine
                   : `Machine(${JSON.stringify(_machine.config, null, 2)})`;
               })();
-              setState({ ...allState, code });
+              setState({ ...allState, machine, code, events: [] });
             }}
           />
         );
