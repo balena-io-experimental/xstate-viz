@@ -78,7 +78,7 @@ export const StyledStateChart = styled.div`
   grid-template-areas: 'content sidebar';
   font-family: sans-serif;
   font-size: 12px;
-  overflow: hidden;
+  overflow: auto;
   max-height: inherit;
 
   @media (max-width: 900px) {
@@ -94,7 +94,7 @@ export const StyledStateChart = styled.div`
   }
 
   > * {
-    max-height: inherit;
+    height: 100%;
     overflow-y: auto;
   }
 
