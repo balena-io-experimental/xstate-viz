@@ -13,7 +13,35 @@ export const StyledStateChartContainer = styled.section`
   flex-wrap: wrap;
   height: min-content;
   padding: 0 1rem;
+  overflow-y: auto;
 `;
+
+const ActorContainer: React.SFC<StateChartContainerProps> = ({
+  service,
+  onReset
+}) => (
+  <>
+    <StateChartVisualization
+      service={service}
+      visible={true}
+      onSelectService={() => void 0}
+      onReset={onReset}
+    />
+    {Array.from(service.children.values()).map((child: any) => {
+      if (!child.state) {
+        return null;
+      }
+
+      return (
+        <ActorContainer
+          key={JSON.stringify(child)}
+          service={child}
+          onReset={onReset}
+        />
+      );
+    })}
+  </>
+);
 
 export const StateChartContainer: React.SFC<StateChartContainerProps> = ({
   service,
@@ -21,28 +49,7 @@ export const StateChartContainer: React.SFC<StateChartContainerProps> = ({
 }) => {
   return (
     <StyledStateChartContainer>
-      <StateChartVisualization
-        service={service}
-        visible={true}
-        onSelectService={() => void 0}
-        onReset={onReset}
-      />
-
-      {Array.from(service.children.values()).map((child: any) => {
-        if (!child.state) {
-          return null;
-        }
-
-        return (
-          <StateChartVisualization
-            key={JSON.stringify(child)}
-            service={child}
-            visible={true}
-            onSelectService={() => void 0}
-            onReset={onReset}
-          />
-        );
-      })}
+      <ActorContainer service={service} onReset={onReset} />
     </StyledStateChartContainer>
   );
 };
